@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_product_sizes",
+  "info": {
+    "displayName": "size",
+    "icon": "apps"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string"
+    },
+    "priceChange": {
+      "type": "decimal"
+    }
+  }
+}
