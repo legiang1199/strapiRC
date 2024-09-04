@@ -2,7 +2,7 @@ import "dotenv/config";
 
 export default () => ({
   auth: {
-    secret: process.env.ADMIN_JWT_SECRET || "defaultSecret", // Provide a default value if not defined
+    secret: process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET, // Provide a default value if not defined
   },
   apiToken: {
     salt: process.env.API_TOKEN_SALT || "defaultSalt", // Provide a default value if not defined
