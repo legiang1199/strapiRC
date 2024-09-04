@@ -1,3 +1,4 @@
+import "dotenv/config";
 interface EnvConfig {
   JWT_SECRET: string;
 }
