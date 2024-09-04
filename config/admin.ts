@@ -1,18 +1,19 @@
 import "dotenv/config";
-export default ({ env }) => ({
+
+export default () => ({
   auth: {
-    secret: process.env.ADMIN_JWT_SECRET,
+    secret: process.env.ADMIN_JWT_SECRET || "defaultSecret", // Provide a default value if not defined
   },
   apiToken: {
-    salt: process.env.API_TOKEN_SALT,
+    salt: process.env.API_TOKEN_SALT || "defaultSalt", // Provide a default value if not defined
   },
   transfer: {
     token: {
-      salt: process.env.TRANSFER_TOKEN_SALT,
+      salt: process.env.TRANSFER_TOKEN_SALT || "defaultTokenSalt", // Provide a default value if not defined
     },
   },
   flags: {
-    nps: env.bool("FLAG_NPS", true),
-    promoteEE: env.bool("FLAG_PROMOTE_EE", true),
+    nps: process.env.FLAG_NPS === "true", // Convert 'true' string to boolean
+    promoteEE: process.env.FLAG_PROMOTE_EE === "true", // Convert 'true' string to boolean
   },
 });

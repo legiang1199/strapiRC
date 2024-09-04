@@ -1,71 +1,77 @@
-import path from 'path';
+import path from "path";
 
-export default ({ env }) => {
-  const client = env('DATABASE_CLIENT', 'sqlite');
+const getSSLConfig = () => {
+  const sslEnabled = process.env.DATABASE_SSL === "true"; // 'true' is a string in environment variables
+  return (
+    sslEnabled && {
+      key: process.env.DATABASE_SSL_KEY,
+      cert: process.env.DATABASE_SSL_CERT,
+      ca: process.env.DATABASE_SSL_CA,
+      capath: process.env.DATABASE_SSL_CAPATH,
+      cipher: process.env.DATABASE_SSL_CIPHER,
+      rejectUnauthorized:
+        process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== "false",
+    }
+  );
+};
+
+export default () => {
+  const client = process.env.DATABASE_CLIENT || "sqlite";
 
   const connections = {
     mysql: {
       connection: {
-        host: env('DATABASE_HOST', 'localhost'),
-        port: env.int('DATABASE_PORT', 3306),
-        database: env('DATABASE_NAME', 'strapi'),
-        user: env('DATABASE_USERNAME', 'strapi'),
-        password: env('DATABASE_PASSWORD', 'strapi'),
-        ssl: env.bool('DATABASE_SSL', false) && {
-          key: env('DATABASE_SSL_KEY', undefined),
-          cert: env('DATABASE_SSL_CERT', undefined),
-          ca: env('DATABASE_SSL_CA', undefined),
-          capath: env('DATABASE_SSL_CAPATH', undefined),
-          cipher: env('DATABASE_SSL_CIPHER', undefined),
-          rejectUnauthorized: env.bool(
-            'DATABASE_SSL_REJECT_UNAUTHORIZED',
-            true
-          ),
-        },
+        host: process.env.DATABASE_HOST || "localhost",
+        port: parseInt(process.env.DATABASE_PORT, 10) || 3306,
+        database: process.env.DATABASE_NAME || "strapi",
+        user: process.env.DATABASE_USERNAME || "strapi",
+        password: process.env.DATABASE_PASSWORD || "strapi",
+        ssl: getSSLConfig(),
       },
-      pool: { min: env.int('DATABASE_POOL_MIN', 2), max: env.int('DATABASE_POOL_MAX', 10) },
+      pool: {
+        min: parseInt(process.env.DATABASE_POOL_MIN, 10) || 2,
+        max: parseInt(process.env.DATABASE_POOL_MAX, 10) || 10,
+      },
     },
     postgres: {
       connection: {
-        connectionString: env('DATABASE_URL'),
-        host: env('DATABASE_HOST', 'localhost'),
-        port: env.int('DATABASE_PORT', 5432),
-        database: env('DATABASE_NAME', 'strapi'),
-        user: env('DATABASE_USERNAME', 'strapi'),
-        password: env('DATABASE_PASSWORD', 'strapi'),
-        ssl: env.bool('DATABASE_SSL', false) && {
-          key: env('DATABASE_SSL_KEY', undefined),
-          cert: env('DATABASE_SSL_CERT', undefined),
-          ca: env('DATABASE_SSL_CA', undefined),
-          capath: env('DATABASE_SSL_CAPATH', undefined),
-          cipher: env('DATABASE_SSL_CIPHER', undefined),
-          rejectUnauthorized: env.bool(
-            'DATABASE_SSL_REJECT_UNAUTHORIZED',
-            true
-          ),
-        },
-        schema: env('DATABASE_SCHEMA', 'public'),
+        connectionString: process.env.DATABASE_URL,
+        host: process.env.DATABASE_HOST || "localhost",
+        port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
+        database: process.env.DATABASE_NAME || "strapi",
+        user: process.env.DATABASE_USERNAME || "strapi",
+        password: process.env.DATABASE_PASSWORD || "strapi",
+        ssl: getSSLConfig(),
+        schema: process.env.DATABASE_SCHEMA || "public",
       },
-      pool: { min: env.int('DATABASE_POOL_MIN', 2), max: env.int('DATABASE_POOL_MAX', 10) },
+      pool: {
+        min: parseInt(process.env.DATABASE_POOL_MIN, 10) || 2,
+        max: parseInt(process.env.DATABASE_POOL_MAX, 10) || 10,
+      },
     },
     sqlite: {
       connection: {
         filename: path.join(
           __dirname,
-          '..',
-          '..',
-          env('DATABASE_FILENAME', '.tmp/data.db')
+          "..",
+          "..",
+          process.env.DATABASE_FILENAME || ".tmp/data.db",
         ),
       },
       useNullAsDefault: true,
     },
   };
 
+  if (!connections[client]) {
+    throw new Error(`Database client '${client}' is not supported`);
+  }
+
   return {
     connection: {
       client,
       ...connections[client],
-      acquireConnectionTimeout: env.int('DATABASE_CONNECTION_TIMEOUT', 60000),
+      acquireConnectionTimeout:
+        parseInt(process.env.DATABASE_CONNECTION_TIMEOUT, 10) || 60000,
     },
   };
 };
